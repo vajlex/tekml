@@ -1,0 +1,83 @@
+
+body {
+	margin: 0;
+	font-family: Verdana, Arial, sans-serif;
+	font-size: small;
+	background: #ffffff;
+	}
+
+h2{
+   font-family: Gotham, Arial, sans-serif;
+}
+
+pre {
+   font-family: Baskerville, Arial, sans-serif;
+   font-size: 0.9em;
+   color: #663333;
+}
+
+#banner {
+	float: top;
+	}
+
+#wrap {
+	padding-left: 15px;
+	float: left;
+}
+
+
+#navbar {
+	font-family: Gotham, Arial, sans-serif;
+	font-size: 0.9em;
+	font-weight: bold;
+	line-height: 150%;
+	padding: 0px;
+	padding-left: 15px;
+	padding-top: 5px;
+	}
+
+
+.corner {
+   float: right;
+   display:inline;
+   height:14px;
+   width:33px;
+   background: url(images/corner.jpg);
+   padding: 0px;
+   max-height: 14px;
+}
+
+* html #corner {height: 14px;}
+
+A{
+   text-decoration: none;
+}
+
+A:hover{
+   text-decoration: underline;
+}
+
+A:visited{
+   color: #0000CC;
+}
+
+A:link{
+   color: #0000CC;
+}
+
+A:active{
+   color: #0000CC;
+}
+
+
+table {
+  margin-bottom: 0;
+
+}
+
+td {
+  margin-bottom: 0;
+
+}
+
+

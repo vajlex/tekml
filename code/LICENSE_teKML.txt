@@ -1,0 +1,27 @@
+teKML-1.0-beta
+
+--------------
+
+publisher: Center for Geographic Analysis, Harvard University
+
+url:  http://forge.abcd.harvard.edu/gf/project/tekml/
+
+authors:  Bill Hays  &  Lex Berman
+
+release date:  12 Feb 2008
+
+--------------
+
+
+Software License for teKML project:
+
+teKML is released under the Apache Software License. 
+
+Also, teKML uses the following opensource libraries and applications. 
+All but ogr are distributed with teKML.
+
+Apache Commons	Apache Software License
+Log4J	        Apache Software License
+Woodstox	Apache Software License
+StAX API	Apache Software License
+ogr	        X Consortium style license

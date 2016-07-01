@@ -1,0 +1,362 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>teKML User Guide</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="tekml.css" />
+</head>
+
+<body>
+
+   <div id=wrap>
+
+                         
+				<h2 id="intro">Obsolete Code Archive</h2>
+				<br /><span STYLE="background-color: #ffffcc"><strong>teKML</strong> was developed in 2006 with the release of KML version 2.1.   One of the new features in 2.1 was the ability to handle <i>begin</i> and <i>end</i> dates.  teKML was developed on the GDAL library specifically to transform existing Shapefiles into KML, using designated date fields in the Shapefile attribute table as the BEGIN and END values.   In this way, the China Historical GIS time Series spatial objects could be converted into KML placemarks and shown as changing over time with the Play functions in GoogleEarth.</span>  
+				<p />
+				<span STYLE="background-color: #66ff66">Note: this code was largely rendered obsolete by the Export2KML extension for ArcMap and other conversion tools.  This codebase should be considered an artifact.</span>
+
+                          <a name="intro"></a>
+				<h2 id="intro">Introduction</h2>
+				<p><strong>teKML</strong> - Time-Enabled KML Conversion Library - is a Java API and commandline application for converting geodata vector files with time attributes into <a href="http://code.google.com/apis/kml/documentation/">KML</a> with time elements.  Geographic data files in <a href='http://www.gdal.org/ogr/ogr_formats.html'>many vector formats</a> (including Shapefiles) can be converted with teKML using the ogr2ogr utility program from <a href="http://fwtools.maptools.org/">FWTools</a>.
+
+                                <p>For geodata source files in formats other than KML, the ogr library from <a href="http://fwtools.maptools.org/">FWTools</a> is used to initially convert to KML.   However, the initial ogr conversion process does not reformat the time attributes into KML time elements.  teKML subsequently takes KML files (including ogr-converted KML files, ArcMap's Export to KML files, or GoogleEarth produced KML files) and converts them to KML version 2.1, following the KML specification for adding time elements.</p>
+
+			  <p>The particular conventions of the time attributes such as the identifying labels for the pertinent fields and the time format are specified in a configuration file for a given workflow along with other instructions to teKML.</p>
+
+
+
+			   <h3>Benefits of using teKML</h3>
+				<p></p>
+
+				<ul><li>When opened in GoogleEarth V4 or higher, files processed by teKML will automatically enable the Time Bar control.
+                                </li>
+                                <p></p>
+
+				<li>teKML includes a date handling library, which can specify an incoming date format and automatically convert them to the format required by KML (ISO 8601).  teKML takes care of padding dates with zeroes when needed, and is based on a specialized Java date library, allowing for valid dates ranging from -296,000,000 to 296,000,000.
+                                </li>
+                                <p></p>
+
+				<li>teKML uses an XML StAX parser, a technology which makes the processing of large files go quickly.  </li>
+                                <p></p>
+
+				<li>In the case where no date values exist in the source file, teKML can apply a single TimeStamp from the configuration parameters to all the PlaceMarks in a KML folder. </li>
+
+
+                          <a name="sysreq"></a>
+				<h2 id="sysreq">System Requirements</h2>
+				<ul>
+					<li>Operating systems:  Windows (2000, XP, Vista) or Linux</li>
+
+					<li>Java Runtime Environment (JRE) version 1.5.x or greater, accessible on the PATH</li>
+
+					<li><a href="http://fwtools.maptools.org/">FWTools</a> installed and accessible on the PATH, per the setup instructions</li>
+				</ul>
+
+
+                          <a name="lic"></a>
+				<h2 id="lic">License</h2>
+				<p>	teKML is release under the Apache Software License.  Also, teKML uses the following opensource libraries and applications.  All but ogr are distributed with teKML.</p>
+				<table>
+					<tr><td>Apache Commons</td><td>Apache Software License</td></tr>
+					<tr><td>Log4J</td><td>Apache Software License</td></tr>
+					<tr><td>Woodstox</td><td>Apache Software License</td></tr>
+					<tr><td>StAX API</td><td>Apache Software License</td></tr>
+					<tr><td>ogr</td><td>X Consortium style license</td></tr>
+				</table>
+
+
+                          <a name="install"></a>
+				<h2 id="install">Pre-Installation</h2>
+				<dl>
+					<dt>Java</dt>
+					<dd>Verify that <a href='http://java.com/en/download/installed.jsp'>Java Runtime Environment</a> (JRE) version 1.5.x or greater has been installed on your system and is accessible on the PATH.</dd>
+                                         <p></p>
+					<dt>FWTOOLS</dt>
+					<dd>Download and install <a href='http://fwtools.maptools.org/'>FWTOOLS</a>.  Note: after installing FWTOOLS on Windows, check the system variables PATH, to make sure the correct path has been set.  If the incorrect version number has been set in the PATH, update it to the correct PATH before running the FWTOOLS command prompt.</dd>
+				</dl>
+
+				<h2 id="install">Installation</h2>
+				<dl>
+					<dt>Windows</dt>
+					<dd>Unzip the teKML-1-x.zip file into a new directory.  It is recommended that the teKML folder be located near the root (or C:\teKML) so there are no spaces in the pathname.  (In Windows, spaces in the pathname, or long folder names, will need to be translated into DOS 8.3 abbreviated formats, like <b>C:\DOCUME~1</b> (instead of <b>C:\Documents and Settings</b>.)  You will need to know the complete pathname to teKML for the configuration file.</dd>
+	                                 <p></p>
+					<dt>Linux</dt>
+					<dd>Extract the teKMKL-1.x.tar.gz file into a new directory.</dd>
+				</dl>
+
+
+                          <a name="run"></a>
+				<h2 id="run">Running the application</h2>
+				<p>  The commandline usage is:</p>
+
+			  <pre>java -jar tekml.jar -c &lt;config-file&gt; -src &lt;input-file or -dir&gt;  -dest &lt;output-dir&gt;</pre>
+
+			  <p>To simplify reuse a sample scripts are provided, tekml.sh for Linux and tekml.bat for Windows, which with a minimum of customization will facilitate running the application, reducing the command to:</p>
+
+			  <pre>tekml &lt;input-file&gt; </pre>
+
+			  <p>Proper editing of a configuration file is required for proper results.  See below.</p>
+
+			  <p>Full path information for files and directories is not required as long as the relative path can be resolved.  For convenience, the configuration file has a base.path option which is applied to the source and destination directories, but obviously not for itself.</p>
+
+			  <p>In the case of a processing error, usually due to the mismatch of expected content in the source file and the config file, an error message is written to the console and the output file is deleted</p>
+
+
+                          <a name="input"></a>
+				<h2 id="input">Input file requirements</h2>
+				<p>Input files must be geodata files recognized by ogr or KML files.  See the <a href='http://www.gdal.org/ogr/index.html'>ogr documentation</a> for the extensive list of these.  In either case, they must contain time elements in an attribute table for each Placemark or have a fixed time element for all Placemarks defined in the config file.</p>
+
+				<p>The encoding of the text in the source data files must be in UTF-8 in order to convert to KML properly.</p>
+
+
+                          <a name="log"></a>
+				<h2 id="log">Logging</h2></a>
+				<p>	teKML uses the Apache log4j library.  The output is configurable via the log4j.properties file in the config directory.  The default setup writes INFO, WARNings and ERRORs to the console and writes a detailed log to the file named tekml.log, once per application run, overwriting the previous run.</p>
+
+                          <a name="workflow"></a>
+				<h2 id="workflow">Workflow</h2>
+				<p>   The organization of source geodata files and the resulting output files is flexible in teKML.  However, without a patterned workflow, confusion can result.  The distribution package provides an &quot;examples&quot; directory with several projects organized according to a recommended workflow. </p>
+
+				<p>The software used to generate the KML varies according to how it writes the attribute table in the Folder/description/CDATA element.  Further, the user who created the original geodata file also used attribute labels that need to be known by teKML.  teKML uses configuration files to coordinate the use of all such information.  For each set of geodata files with similar attribute table characteristics, a separate project directory, configuration file, and script is recommended.  The examples show the project organization:</p>
+<pre>
+prj/
+	input-files/
+	output-files/
+	config.properties
+	tekml.sh
+</pre>	
+
+				<p>However, the location of any of these directories and files can vary to suit the project at hand.</p>
+ 			
+
+                          <a name="config"></a>
+				<h2 id="config">Configuration Files</h2>
+				<p>	The example configuration files are well-docmented as to all of the available options and the possible values.  The following is a generic example:</p>
+	
+<pre>
+# teKML configuration file for use with geodata files to be converted to KML 
+config.version=1.0
+
+#default base path location of input files
+#relative paths will be appended to this value
+#windows example -> base.path=C:\\teKML\\examples\\win
+#linux example -> base.path=./geodatafiles
+base.path=C:\\teKML\\examples\\win
+
+#output kml filename tag, added before '.kml' extension, e.g. mygeodata-te.kml for input file mygeodata.shp
+#required so as to not overwrite the source file; default is -te;
+kml.filename.tag=-te
+
+# creator of KML files, valid values are 'ogr2ogr', 'avexp', 'googleearth' and 'other'
+kml.generator=avexp
+
+#ogr2ogr properties
+#the vanilla ogr2ogr conversion to KML
+#ogr2ogr.exec='ogr2ogr -f KML '
+
+#an extension for use with projected values that need to be put back to coordinate values
+#ogr2ogr.exec='ogr2ogr -f KML -t_srs "+proj=latlong" '   
+
+#instruction to transform geodata file to KML using ogr2ogr
+#this value should only be set to true for source data files not already in KML format
+geodata.transform=false
+
+#date format for time values in the attribute table or fixed values given below
+#valid values are 'iso8601' or any date expressed by Java Data formatting - see User Guide
+kml.time.source.format=iso8601
+
+#resolution of date format, value values are 'day', 'month', 'year'
+kml.time.source.resolution=year
+
+#time data source; valid values are 'fixed' or 'attribute.table'
+kml.time.source=attribute.table
+
+#fixed date values
+#must be expressed in iso8601 format
+kml.time.fixed.begin=
+kml.time.fixed.end=
+kml.time.fixed.timestamp=
+
+# user-defined label for name element in attribute table - used for Placemark name
+attrib.table.label.name=Name
+
+# user-defined labels for time elements in attribute table 
+# list multiple values with commas and spaces
+# these are used by teKML as regular expressions - see User Guide
+attrib.table.label.begin=Begin_Year, BEG_YR, BEGIN, begin
+attrib.table.label.end=End_Year, END_YR, END, end
+attrib.table.label.timestamp=Year
+
+#flag to validate output against schema
+kml.validate=false
+kml.validate.schema=./resources/kml21.xsd
+
+#user text for teKML comment
+kml.comment=test comment
+</pre>			
+
+                          <a name="date"></a>
+				<h2 id="date">Date-Time Elements</h2>
+				<p>The <a href="http://code.google.com/apis/kml/documentation/kml_tags_21.html">KML specification</a> for version 2.1 uses the <a href="http://www.w3.org/TR/xmlschema-2/#dateTime">XML Schema date specification</a> which in turn uses ISO8601. teKML writes output KML files with dates in this format in the time elements.  teKML only implements dates without day subdivision elements (hour, min, sec, etc.).  That is, the following are valid KML dates for use here.  Dates BCE are notated with a leading negative sign per the ISO8601 spec.</p>
+				
+				<ul>
+	
+					<li>year -  at least four digits;  less than 296000000 and greater than -292000000 in the current implementation</li>
+	
+					<li>month - expressed 'yyyy-mm'; two digits with leading zero as needed;  e.g.  1984-11</li>
+	
+					<li>day -   expressed 'yyyy-mm-dd'; two digits with leading zero as needed;  e.g. 1984-11-07</li>
+				</ul>
+	
+    		<p>The reason for this limitation is that the initial use of teKML was intended for historical data with primarly years as the time elements.</p>	
+	
+			<p>If the dates in the source file attribute tables are in the ISO8601 format, then use the value <strong>iso8601</strong> in the configuration file.  For input purposes only, the requirement of leading zeroes for years with less than four digits is not required as the parsing of these dates is set to lenient.  Output will be with leading zeroes as required by the spec.  Note that GoogleEarth will not display the leading zeroes in the time bar.</p>
+	
+			<p>Source dates are usually not in ISO8601 format.  In order to convert to the required normal form, teKML accepts dates formats described by a format string taken from the Java SimpleDateFormat class.</p>    
+	
+			<p>Elements that can be used here are:</p>
+			<table>
+				<tr><td>G</td><td>Era designator, either AD or BC.  Default is AD.</td></tr>
+				<tr><td>yyyy  or yy</td><td>year</td></tr>
+				<tr><td>MM</td><td>month as 1 or 2 digits</td></tr>
+				<tr><td>MMM</td><td>month as text abbreviated per the default locale</td></tr>
+				<tr><td>dd</td><td>day as 1 or 2 digits</td></tr>
+			</table>
+		
+			<h3>Examples of usage</h3>
+			
+			  <p>&apos;MMM dd, yyyy&apos;  will match: &quot;Jan 3, 1984&quot;</p>
+			
+			  <p>&apos;yyyy-MM-dd&apos;    will match: &quot;1999-09-04&quot; as well as &quot;1999-9-4&quot;
+			
+			  <p>&apos;dd MMM yyyy G&apos; will match: &quot;15 Mar 0004 AD&quot;
+	
+			<h3>Date-Time Resolution</h3>
+	
+			<p>The configuration file requires the specification of a date/time <strong>resolution</strong>, that is, the precision of the value that is rendered in formatting.  In most programming libraries, setting a date to the value &quot;1965&quot; results in the rendered value &quot;Jan 1, 1965&quot;.  By setting the resolution in teKML to &quot;year&quot;, the value is truly &quot;1965&quot; which is valid as a date (technically a <strong>gYear</strong>) in the ISO8601 specification.  Setting a resolution also results in a uniform date type throughout the resulting output.</p>
+			
+
+                          <a name="app-config"></a>
+				<h2 id="app-config">Application Configuration</h2>
+				<p>The <strong>teKML</strong> application's properties are maintained in the file &quot;teKML.properties&quot; located in the &quot;config&quot; subdirectory of the distribution.  For each of the known KML generators the expected attribute table features are specified, that is, the row separator and the row pattern.  Both of these are expressed as Regular Expressions and can be changed to suit the realities of the generated KML.  A placeholder for another generator called &quot;other&quot; is provided for an as yet unknown KML generator.</p> 
+  
+				<p>Generally, these values will work equally on Linux and Windows.  However, if the row separator involves a line break as with the GoogleEarth export, this may be different. </p>
+<pre>
+# teKML.properties
+#
+
+#kml namespace - will replace namespace of incoming kml
+kml.namespace=http://earth.google.com/kml/2.1
+
+# ogr2ogr rendering of embedded attribute table
+ogr2ogr.table.row.separator=
+ogr2ogr.table.row.pattern=^&#060;b&#062;([A-Z_]*)\\:&#060;/b&#062; &#060;i&#062;(.*)&#060;/i&#062;$<br />
+ogr2ogr.table.row.name.group=1
+ogr2ogr.table.row.value.group=2
+
+# ArcView KML Export Extension rendering of embedded attribute table
+avexp.table.row.separator=
+avexp.table.row.pattern=^(.+) = ?(.*)$
+avexp.table.row.name.group=1
+avexp.table.row.value.group=2
+
+#GoogleEarth KML Export
+ge.table.row.separator=\\n
+ge.table.row.pattern=^(.+)=(.*)$
+ge.table.row.name.group=1
+ge.table.row.value.group=2
+
+#other generator
+generator.table.row.sep=&#060;/tr&#062;
+generator.table.row.pattern=&#060;tr&#062;&#060;td&#062;(w+)&#060;/td&#062;&#060;td&#062;(w+)&#060;/td&#062;
+generator.table.row.name.group=1
+generator.table.row.value.group=2
+</pre>
+
+                          <a name="api"></a>
+				<h2 id="api">Using the API</h2>
+				<h3>PrecisionDate</h3>
+
+				<p>The package edu.harvard.cga.gtools.tekml.pdate contains a specialized date library.  None of its classes are dependant on anything in the tekml class, but rather builds on the standard Java date classes and follow the pattern of java.util.Date and java.text.DateFormatter using delegation rather subclassing. Its motivation is twofold:</p>
+
+				<ol>
+					<li>to support ISO8601 formatting which is not compatible with the Java date formatting language found in the java.text.SimpleDateFormatter class.  The ISO8601 standard is required by the KML 2.1 schema which is central to the teKML project.</li>
+					<li>to add an instance variable to the date class to describe its resolution to a given unit of time measurement, i.e. its granularity, such as year, month, or day.  The initial context for the teKML project is historical dates, which can vary in date assignment, usually as years or days. The XML Schema specification used by the KML 2.1 standard provides for years (gYear), month/years (gMonthYear), and the familiar date (gDate).  In the current version, subdivision of days (hours, minutes, seconds, etc.) are not supported but could be added at a later time without breaking the current api.</li>
+				</ol>
+
+
+				<h3>teKML Processing</h3>
+
+
+				<p>The package edu.harvard.cga.gtools.tekml is designed to support alternative applications, such as the addition of a gui application or use by another Java development scenario.</p>
+
+                          <a name="kml"></a>
+				<h2 id="step">Windows How To</h2>
+				<h3>Quickstart Method from KML</h3>
+
+				<p>
+                                <ul><li>Make sure you have Java running, CommandPrompt [java -version]
+                                <li>Install <a href="http://fwtools.maptools.org/">FWTools</a> Windows
+                                <li>Make sure FWTools is on the PATH, CommandPrompt [echo %PATH%]
+                                <li>Copy the teKML package into C:\teKML
+                                <li>Get the following info from your source file:
+                                <br>field name to be used as Placemark Label (optional)
+                                <br>field name to be used as Begin Date
+                                <br>field name to be used as End Date
+                                <br>field name to be used as TimeStamp (if not Begin and End)
+                                </ul>
+
+                                <b>Converting from KML file with date values stored in CDATA description</b>
+                                <ol><li>Go to C:\teKML\examples\win\AVExportProject
+                                <li>EDIT sample_avexp_config.properties SET [base.path=C:\\teKML\\examples\\win\\AVExportProject] note: double-back slashes needed
+                                <li>EDIT sample_avexp_config.properties SET [attrib.table.label.begin=] make sure the name of your field for BEGIN date (case-sensitive) appears here
+                                <li>EDIT sample_avexp_config.properties SET [attrib.table.label.end=] make sure the name of your field for END date (case-sensitive) appears here
+                                <li>EDIT tekml.bat SET [-jar ..\..\..\tekml.jar]
+                                <li>EDIT tekml.bat SET [-c sample_avexp_config.properties]
+                                <li>EDIT tekml.bat SET [-src geodatafiles\YOUR_FILE_NAME.kml]
+                                <li>Place [YOUR_FILE_NAME.kml] into C:\teKML\examples\win\Shape\geodatafiles
+                                <li>Launch FWTOOLS (which looks like but != CommandPrompt)
+                                <li>Change Directory to C:\teKML\examples\win\AVExportProject
+                                <li>type [tekml.bat] hit ENTER
+                                <li>New file will be created in default directory C:\teKML\examples\win\AVExportProject\time-enabled
+                                <li>The values set in items 3, 4, 5 above will be written to <TimeSpan> elements in the new .kml file.</ol>
+                                </p>
+
+                          <a name="shape"></a>
+                                <h2 id="step2">Windows How To</h2>
+				<h3>Quickstart Method from ESRI Shapefile</h3>
+
+				<p>
+                                <ul><li>Make sure you have Java running, CommandPrompt [java -version]
+                                <li>Install <a href="http://fwtools.maptools.org/">FWTools</a> Windows
+                                <li>Make sure FWTools is on the PATH, CommandPrompt [echo %PATH%]
+                                <li>Copy the teKML package into C:\teKML
+                                <li>Get the following info from your source file:
+                                <br>field name to be used as Placemark Label (optional)
+                                <br>field name to be used as Begin Date
+                                <br>field name to be used as End Date
+                                <br>field name to be used as TimeStamp (if not Begin and End)
+                                </ul>
+
+                                <b>Converting from Shapefile with date values stored in attribute table</b>
+                                <ol><li>Go to C:\teKML\examples\win\Shape
+                                <li>EDIT sample_shape_config.properties SET [base.path=C:\\teKML\\examples\\win\\Shape] note: double-back slashes needed
+                                <li>EDIT sample_shape_config.properties SET [attrib.table.label.name=] make sure the name of your field for PlaceMark Label Name (case-sensitive) appears here  (Optional)
+                                <li>EDIT sample_shape_config.properties SET [attrib.table.label.begin=] make sure the name of your field for BEGIN date (case-sensitive) appears here
+                                <li>EDIT sample_shape_config.properties SET [attrib.table.label.end=] make sure the name of your field for END date (case-sensitive) appears here
+                                <li>EDIT tekml.bat SET [-jar ..\..\..\tekml.jar]
+                                <li>EDIT tekml.bat SET [-c sample_shape_config.properties]
+                                <li>EDIT tekml.bat SET [-src geodatafiles\YOUR_FILE_NAME.shp]
+                                <li>Place [YOUR_FILE_NAME.shp] into C:\teKML\examples\win\Shape\geodatafiles
+                                <li>Launch FWTOOLS (which looks like but != CommandPrompt)
+                                <li>Change Directory to C:\teKML\examples\win\shape
+                                <li>type [tekml.bat] hit ENTER
+                                <li>New file will be created in default directory C:\teKML\examples\win\Shape\time-enabled
+                                <li>The values set in items 3, 4, 5 above will be written to <TimeSpan> elements in the new .kml file.</ol>
+
+   </div>
+
+</body>
+</html>
